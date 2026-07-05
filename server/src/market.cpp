@@ -90,6 +90,7 @@ std::pair<std::optional<float>, std::optional<float>> Market::get_best_bid_ask(c
 
 void Market::print_market() const {
     std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> cout_lock(cout_mutex());
     std::cout << "=== Market state ===\n";
     for (const auto& [id, trader] : traders_) {
         if (id == kMarketMakerId) {

@@ -2,10 +2,21 @@
 
 #include <sys/socket.h>
 
+#include <mutex>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
+
+// std::cout is written from several independent threads (per-client
+// handlers, the market-printer thread); concurrent unsynchronized writes to
+// it are a data race. Callers should hold this for the duration of a
+// printed block. Defined as a function-local static in an inline function
+// so every translation unit that includes this header shares one instance.
+inline std::mutex& cout_mutex() {
+    static std::mutex m;
+    return m;
+}
 
 inline std::vector<std::string> split(const std::string& s, char delimiter) {
     std::vector<std::string> tokens;

@@ -104,7 +104,10 @@ std::string dispatch(Market& market, int trader_id, const std::string& request) 
 // dispatching requests until the client disconnects.
 void handle_client(Market& market, int client_fd, int trader_id) {
     market.add_trader(trader_id, kStartingBalance);
-    std::cout << "Trader " << trader_id << " connected.\n";
+    {
+        std::lock_guard<std::mutex> lock(cout_mutex());
+        std::cout << "Trader " << trader_id << " connected.\n";
+    }
 
     std::string request;
     while (recv_line(client_fd, request)) {
@@ -116,7 +119,10 @@ void handle_client(Market& market, int client_fd, int trader_id) {
         }
     }
 
-    std::cout << "Trader " << trader_id << " disconnected.\n";
+    {
+        std::lock_guard<std::mutex> lock(cout_mutex());
+        std::cout << "Trader " << trader_id << " disconnected.\n";
+    }
     ::close(client_fd);
 }
 
@@ -162,7 +168,10 @@ int main() {
         return 1;
     }
 
-    std::cout << "Stock trading server listening on port " << kServerPort << "...\n";
+    {
+        std::lock_guard<std::mutex> lock(cout_mutex());
+        std::cout << "Stock trading server listening on port " << kServerPort << "...\n";
+    }
 
     int next_trader_id = 1;
     while (running.load()) {
@@ -179,7 +188,10 @@ int main() {
         std::thread(handle_client, std::ref(market), client_fd, next_trader_id++).detach();
     }
 
-    std::cout << "\nReceived shutdown signal. Shutting down server...\n";
+    {
+        std::lock_guard<std::mutex> lock(cout_mutex());
+        std::cout << "\nReceived shutdown signal. Shutting down server...\n";
+    }
     ::close(server_fd);
     return 0;
 }
