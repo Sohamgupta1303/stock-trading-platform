@@ -31,6 +31,17 @@ public:
     // Registers (or resets) a trader with the given starting balance.
     void add_trader(int id, float initial_balance);
 
+    // Parses "BUY:SYMBOL:QTY" or "SELL:SYMBOL:QTY", validates the symbol and
+    // the trader's funds/holdings, submits the order to the right order
+    // book, and returns a human-readable confirmation or error string that
+    // always reflects what actually happened (never a silent no-op).
+    std::string add_order(int trader_id, const std::string& request);
+
+    // Parses "RECOMMEND:RISK:COUNT" (risk 1=conservative, 2=moderate,
+    // 3=aggressive) and returns the `count` best-matching stock symbols,
+    // scored by each stock's volatility().
+    std::string recommend_stocks(const std::string& request);
+
     // Re-prices the market maker's standing quotes for `symbol` around its
     // current price: cancels its old resting orders for that stock and adds
     // fresh ones at price +/- kMarketMakerSpread. Called whenever that
